@@ -6,7 +6,7 @@ import react from "@vitejs/plugin-react";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: 'https://TBD54566975.github.io/dwa-demo/',
+  base: 'https://tbd54566975.github.io/dwa-demo/',
   define: {
     global: "globalThis",
   },
