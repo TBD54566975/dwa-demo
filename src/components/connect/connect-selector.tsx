@@ -2,7 +2,7 @@ import { Loader2Icon, User2Icon, Wallet2Icon, XIcon } from "lucide-react";
 import { Button } from "../ui/button"
 import { Typography } from "../ui/typography"
 import { useWeb5 } from "@/web5";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Input } from "../ui/input";
 import { ConnectOptions, Web5ConnectResult } from "@web5/api";
 import { DwnDataEncodedRecordsWriteMessage, WalletConnect } from "@web5/agent";
@@ -237,34 +237,26 @@ const WalletSelector: React.FC<WalletSelectorProps> = ({
     }
   }
 
-  const requiredPermissions = () => {
+  const requiredPermissions = useCallback(() => {
     const request = [tasksProtocolDefinition, profileDefinition];
     return request.map(definition => WalletConnect.createPermissionRequestForProtocol({ definition, permissions: [
       'read', 'write', 'delete', 'query', 'subscribe'
     ] }));
-  }
+  }, []);
 
-  const selectWallet = async (walletDomain: string) => {
+  const selectWallet = useCallback((walletDomain: string) => {
     setSelectingWallet(true);
     try {
-      const width = 500;
-      const height = 600;
-      const left = (screen.width - width) / 2;
-      const top = (screen.height - height) / 2;
-
-      const popup = window.open('', '_blank', `popup=true,width=${width},height=${height},left=${left},top=${top}`);
-      popup?.document.write(popupContent);
-      setPopup(popup);
-
       const messageListener = (event: MessageEvent<{ type: string, grants?: DwnDataEncodedRecordsWriteMessage[], delegateDid?: PortableDid}>) => {
         const { type, grants, delegateDid } = event.data;
         if (event.origin === walletDomain){
           if (type === 'dweb-connect-loaded') {
-            popup?.postMessage({
+            const authRequest = {
               type: 'dweb-connect-authorization-request',
               did,
               permissions: requiredPermissions()
-            }, walletDomain);
+            };
+            popup?.postMessage(authRequest, walletDomain);
           } else if (type === 'dweb-connect-authorization-response') {
             window.removeEventListener('message', messageListener);
             if (processDelegateIdentity) {
@@ -295,27 +287,10 @@ const WalletSelector: React.FC<WalletSelectorProps> = ({
       setWallets([]);
       setIsloading(false);
     }
-  }
+  }, [ did, popup, processDelegateIdentity, requiredPermissions, setState ]);
 
-  const didInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const didInputRegex = /(?:[^@]*@)?(did:[a-z0-9]+:[a-zA-Z0-9-]+)/;
-    const httpInputRegex = /https?:\/\/[a-zA-Z0-9\-.]+/;
-
-    setDidInputValue(e.target.value);
-    const didMatch = e.target.value.match(didInputRegex);
-    const httpMatch = e.target.value.match(httpInputRegex);
-
-    if (e.isTrusted && httpMatch) {
-      setIsloading(true);
-      const domain = httpMatch[0];
-      return selectWallet(domain);
-    }
-
-    if (e.isTrusted && didMatch) {
-      setIsloading(true);
-      const did = didMatch[1];
-      setDid(did);
-
+  useEffect(() => {
+    const loadWallets = async () => {
       try {
         const connectData = await fetch(
           `https://dweb/${did}/read/protocols/${Convert.string('https://areweweb5yet.com/protocols/profile').toBase64Url()}/connect`
@@ -334,6 +309,32 @@ const WalletSelector: React.FC<WalletSelectorProps> = ({
         setWallets([]);
         setIsloading(false);
       }
+    }
+
+    if (did) {
+      loadWallets();
+    }
+  }, [ did, selectWallet ]);
+
+  const didInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const didInputRegex = /(?:[^@]*@)?(did:[a-z0-9]+:[a-zA-Z0-9-]+)/;
+
+    setDidInputValue(e.target.value);
+    const didMatch = e.target.value.match(didInputRegex);
+
+    if (e.isTrusted && didMatch) {
+      setIsloading(true);
+      const did = didMatch[1];
+      setDid(did);
+
+      const width = 500;
+      const height = 600;
+      const left = (screen.width - width) / 2;
+      const top = (screen.height - height) / 2;
+
+      const popup = window.open('', '_blank', `popup=true,width=${width},height=${height},left=${left},top=${top}`);
+      popup?.document.write(popupContent);
+      setPopup(popup);
     }
   }
 
