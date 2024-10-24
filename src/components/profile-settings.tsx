@@ -31,8 +31,7 @@ export const ProfileSettings = () => {
 
   const loadProfile = async () => {
     try {
-      const profileRecord = await drlReadProtocolJson(did, profile.uri, "name");
-      // console.info({ profileRecord }); // TODO: remove
+      const profileRecord = await drlReadProtocolJson(did, profile.uri, "social");
       setDisplayName(profileRecord?.displayName);
       setHasProfileName(true);
     } catch (e) {
@@ -62,17 +61,19 @@ export const ProfileSettings = () => {
     setIsLoading(true);
 
     try {
+      const profileRecord = await drlReadProtocolJson(did, profile.uri, "social");
+
       const res = await dwn.records.create({
         data: {
+          ...profileRecord,
           displayName,
         },
         message: {
           published: true,
           recipient: did,
-          schema: profile.schemas.name,
           dataFormat: "application/json",
           protocol: profile.uri,
-          protocolPath: "name",
+          protocolPath: "social",
         },
       });
 

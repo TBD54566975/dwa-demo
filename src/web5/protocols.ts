@@ -35,28 +35,60 @@ export const task = {
 }
 
 
-const protocolSchema = "https://schema.org/ProfileSample";
-const protocolTypeNameSchema = "https://schema.org/ProfileSample/schemas/name";
+const protocolSchema =  "https://areweweb5yet.com/protocols/profile";
 
 export const profileDefinition = {
   published: true,
-  protocol: protocolSchema,
+  protocol: "https://areweweb5yet.com/protocols/profile",
   types: {
     name: {
-      dataFormats: ["application/json"],
-      schema: protocolTypeNameSchema,
+      dataFormats: ['application/json']
     },
-    avatar: { dataFormats: ["image/gif", "image/png", "image/jpeg"] },
+    social: {
+      dataFormats: ['application/json']
+    },
+    messaging: {
+      dataFormats: ['application/json']
+    },
+    phone: {
+      dataFormats: ['application/json']
+    },
+    address: {
+      dataFormats: ['application/json']
+    },
+    career: {
+      dataFormats: ['application/json']
+    },
+    payment: {
+      dataFormats: ['application/json']
+    },
+    connect: {
+      dataFormats: ['application/json']
+    },
+    avatar: {
+      dataFormats: ['image/gif', 'image/png', 'image/jpeg', 'image/webp']
+    },
+    hero: {
+      dataFormats: ['image/gif', 'image/png', 'image/jpeg', 'image/webp']
+    }
   },
-  structure: { name: {}, avatar: {} },
-};
+  structure: {
+    name: {},
+    social: {},
+    career: {},
+    avatar: {},
+    hero: {},
+    messaging: {},
+    address: {},
+    phone: {},
+    payment: {},
+    connect: {}
+  }
+}
 
 export const profile = {
   definition: profileDefinition,
   uri: protocolSchema,
-  schemas: {
-    name: protocolTypeNameSchema,
-  },
 };
 
 export const byUri = {

@@ -33,6 +33,9 @@ importers:
       '@web5/browser':
         specifier: 0.0.0-next-3cfc21d-20240920195338
         version: 0.0.0-next-3cfc21d-20240920195338
+      '@web5/common':
+        specifier: ^1.1.0
+        version: 1.1.0
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -1629,6 +1632,10 @@ packages:
 
   '@web5/common@1.0.2':
     resolution: {integrity: sha512-SerGdrxZF47yidvhrRa8sGLEOunIlDHppxrtWYCuKMVgtQKgheEmaS4+xchGAc/mZggJX4LlwJbRuniIiSaXrw==}
+    engines: {node: '>=18.0.0'}
+
+  '@web5/common@1.1.0':
+    resolution: {integrity: sha512-h08WsnMK7eyCfCgrV++6/h/0xoQeVbJJ/D5uqb2d+wUeTMpQ99bJWAt0if/2AOOB4+8CvyfVc4e9gRZM/YyN+Q==}
     engines: {node: '>=18.0.0'}
 
   '@web5/crypto@0.0.0-next-3cfc21d-20240920195338':
@@ -5683,6 +5690,13 @@ snapshots:
       readable-stream: 4.4.2
 
   '@web5/common@1.0.2':
+    dependencies:
+      '@isaacs/ttlcache': 1.4.1
+      level: 8.0.1
+      multiformats: 13.1.0
+      readable-stream: 4.5.2
+
+  '@web5/common@1.1.0':
     dependencies:
       '@isaacs/ttlcache': 1.4.1
       level: 8.0.1
