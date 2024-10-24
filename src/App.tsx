@@ -13,7 +13,7 @@ import { Web5Provider } from "@/web5/Web5Provider";
 export const App = () => {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   return (
-    <Router basename="/dwa-demo">
+    <Router>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <Web5Provider>
           <div className="flex md:min-h-screen">
