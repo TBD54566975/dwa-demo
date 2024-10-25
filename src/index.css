@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+.tooltip-action {
+  @apply relative;
+}
+
+.tooltip {
+  @apply text-sm invisible absolute opacity-0 transition-opacity duration-300 ease-in-out transform -translate-x-1/2 rounded shadow-lg px-3 py-1;
+}
+
+.tooltip-active .tooltip {
+  @apply visible z-50 opacity-100;
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

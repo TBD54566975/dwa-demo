@@ -9,9 +9,19 @@ interface ConnectQRProps {
 }
 
 const ConnectQR: React.FC<ConnectQRProps> = ({ close, value }) => {
+
+  const copyQRValue = (e: React.MouseEvent<HTMLElement>) => {
+    navigator.clipboard.writeText(value);
+    const currentTarget = e.currentTarget;
+
+    currentTarget.classList.add('tooltip-active');
+    setTimeout(() => currentTarget.classList.remove('tooltip-active'), 1000);
+  }
+
   return (<div>
-    <a href={value}>
-      <Typography variant="h3">Scan QR Code</Typography>
+    <Typography variant="h3">Scan QR Code</Typography>
+    <a href={value} onClick={copyQRValue} className="tooltip-action">
+      <span className="tooltip bg-background text-primary">Copied</span>
       <QRCodeCanvas value={value} size={256} className="mt-4 p-2 bg-primary" bgColor="rgb(250,204, 21)" fgColor="rgb(41,37,36)" />
     </a>
     <div className="mt-4">

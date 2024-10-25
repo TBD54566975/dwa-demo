@@ -1,6 +1,9 @@
-import { VitePWA } from "vite-plugin-pwa";
 import path from "path";
+
+//@ts-expect-error - no types available
 import nodePolyfills from "vite-plugin-node-stdlib-browser";
+
+import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
