@@ -1,4 +1,4 @@
-import { tasksProtocolDefinition } from "@/web5/protocols";
+import { taskDefinition } from "@/protocols/tasks";
 import { DwnApi } from "@web5/api";
 
 export interface Task {
@@ -38,10 +38,10 @@ export class TodoDwnRepository {
     const { status, record } = await this.dwn.records.create({
       data: task,
       message: {
-        protocol: tasksProtocolDefinition.protocol,
+        protocol: taskDefinition.protocol,
         protocolPath: "task",
-        schema: tasksProtocolDefinition.types.task.schema,
-        dataFormat: tasksProtocolDefinition.types.task.dataFormats[0],
+        schema: taskDefinition.types.task.schema,
+        dataFormat: taskDefinition.types.task.dataFormats[0],
         published: true,
         tags: {
           completed: task.completed,
@@ -92,7 +92,7 @@ export class TodoDwnRepository {
 
   async findTaskRecord(recordId: string) {
     const { record } = await this.dwn.records.read({
-      protocol: tasksProtocolDefinition.protocol,
+      protocol: taskDefinition.protocol,
       message: {
         filter: {
           recordId,
@@ -105,10 +105,10 @@ export class TodoDwnRepository {
 
   async listTasksRecords() {
     const { records } = await this.dwn.records.query({
-      protocol: tasksProtocolDefinition.protocol,
+      protocol: taskDefinition.protocol,
       message: {
         filter: {
-          protocol: tasksProtocolDefinition.protocol,
+          protocol: taskDefinition.protocol,
           protocolPath: "task",
           dataFormat: "application/json",
         },
