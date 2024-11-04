@@ -1,120 +1,67 @@
+import { profileDefinition } from "@/protocols/profile";
+import { taskDefinition } from "@/protocols/tasks";
 import { DwnApi } from "@web5/api";
 
-
-const tasksProtocolSchema = "https://schema.org/TaskSample";
-const tasksProtocolTypeTaskSchema = "https://schema.org/TaskSample/schemas/name";
-
-
-export const tasksProtocolDefinition = {
-  published: true,
-  protocol: tasksProtocolSchema,
-  types: {
-    task: {
-      dataFormats: ["application/json"],
-      schema: tasksProtocolTypeTaskSchema,
-    }
-  },
-  structure: {
-    task: {
-      $tags: {
-        $requiredTags: ["completed"],
-        completed: {
-          type: "boolean"
-        }
+/**
+ * Canonicalizes a given object according to RFC 8785 (https://tools.ietf.org/html/rfc8785),
+ * which describes JSON Canonicalization Scheme (JCS). This function sorts the keys of the
+ * object and its nested objects alphabetically and then returns a stringified version of it.
+ * This method handles nested objects, array values, and null values appropriately.
+ *
+ * @param obj - The object to canonicalize.
+ * @returns The stringified version of the input object with its keys sorted alphabetically
+ * per RFC 8785.
+ */
+export function canonicalize(obj: { [key: string]: any }): string {
+  /**
+   * Recursively sorts the keys of an object.
+   *
+   * @param obj - The object whose keys are to be sorted.
+   * @returns A new object with sorted keys.
+   */
+  const sortObjKeys = (obj: { [key: string]: any }): { [key: string]: any } => {
+    if (obj !== null && typeof obj === 'object' && !Array.isArray(obj)) {
+      const sortedKeys = Object.keys(obj).sort();
+      const sortedObj: { [key: string]: any } = {};
+      for (const key of sortedKeys) {
+        // Recursively sort keys of nested objects.
+        sortedObj[key] = sortObjKeys(obj[key]);
       }
+      return sortedObj;
     }
-  }
+    return obj;
+  };
+
+  // Stringify and return the final sorted object.
+  const sortedObj = sortObjKeys(obj);
+  return JSON.stringify(sortedObj);
 }
 
-export const task = {
-  definition: tasksProtocolDefinition,
-  uri: tasksProtocolSchema,
-  schemas: {
-    task: tasksProtocolTypeTaskSchema,
-  }
-}
-
-
-const protocolSchema =  "https://areweweb5yet.com/protocols/profile";
-
-export const profileDefinition = {
-  published: true,
-  protocol: "https://areweweb5yet.com/protocols/profile",
-  types: {
-    name: {
-      dataFormats: ['application/json']
-    },
-    social: {
-      dataFormats: ['application/json']
-    },
-    messaging: {
-      dataFormats: ['application/json']
-    },
-    phone: {
-      dataFormats: ['application/json']
-    },
-    address: {
-      dataFormats: ['application/json']
-    },
-    career: {
-      dataFormats: ['application/json']
-    },
-    payment: {
-      dataFormats: ['application/json']
-    },
-    connect: {
-      dataFormats: ['application/json']
-    },
-    avatar: {
-      dataFormats: ['image/gif', 'image/png', 'image/jpeg', 'image/webp']
-    },
-    hero: {
-      dataFormats: ['image/gif', 'image/png', 'image/jpeg', 'image/webp']
-    }
-  },
-  structure: {
-    name: {},
-    social: {},
-    career: {},
-    avatar: {},
-    hero: {},
-    messaging: {},
-    address: {},
-    phone: {},
-    payment: {},
-    connect: {}
-  }
-}
-
-export const profile = {
-  definition: profileDefinition,
-  uri: protocolSchema,
-};
-
-export const byUri = {
-  [profileDefinition.protocol]: profile,
-  [tasksProtocolDefinition.protocol]: task,
-};
+const protocols = [ profileDefinition, taskDefinition ];
 
 export const installProtocols = async (dwn: DwnApi, did: string) => {
   const installed = await dwn.protocols.query({ message: {} });
   const configurationPromises = [];
-  console.info(JSON.stringify(profileDefinition), { profile });
   try {
-    for (const protocolUri in byUri) {
+    for (const definition of protocols) {
       const record = installed.protocols.find(
-        (record) => protocolUri === record.definition.protocol
+        (record) => definition.protocol === record.definition.protocol
       );
+
       if (!record) {
-        console.info("installing protocol: " + protocolUri);
-        const definition = byUri[protocolUri].definition;
+        console.info("installing protocol: " + definition.protocol);
         configurationPromises.push(
           dwn.protocols.configure({
             message: { definition },
           })
         );
+      } else if (canonicalize(record.definition) !== canonicalize(definition)) {
+        console.info("updating protocol: " + definition.protocol);
+        configurationPromises.push(dwn.protocols.configure({
+          message: { definition }
+        }))
       } else {
-        console.info("protocol already installed: " + protocolUri);
+        console.info("protocol already installed: " + definition.protocol);
       }
     }
 

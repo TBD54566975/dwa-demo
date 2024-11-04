@@ -3,11 +3,11 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Typography } from "./ui/typography";
 import { useWeb5 } from "@/web5";
-import { profile } from "@/web5/protocols";
 import { drlReadProtocolJson, drlReadProtocolUrl } from "@/web5/drls";
 import { toastError, toastSuccess } from "@/lib/utils";
 import { Loader2Icon, UserIcon } from "lucide-react";
 import { Label } from "./ui/label";
+import { profileDefinition } from "@/protocols/profile";
 
 export const ProfileSettings = () => {
   const { dwn, did } = useWeb5();
@@ -18,6 +18,8 @@ export const ProfileSettings = () => {
   const [avatarFileInput, setAvatarInput] = useState<File | undefined>();
   const [avatarLoadError, setAvatarLoadError] = useState<string | undefined>();
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const profileUri = profileDefinition.protocol;
 
   useEffect(() => {
     if (did) {
@@ -31,7 +33,7 @@ export const ProfileSettings = () => {
 
   const loadProfile = async () => {
     try {
-      const profileRecord = await drlReadProtocolJson(did, profile.uri, "social");
+      const profileRecord = await drlReadProtocolJson(did, profileUri, "social");
       setDisplayName(profileRecord?.displayName);
       setHasProfileName(true);
     } catch (e) {
@@ -61,7 +63,7 @@ export const ProfileSettings = () => {
     setIsLoading(true);
 
     try {
-      const profileRecord = await drlReadProtocolJson(did, profile.uri, "social");
+      const profileRecord = await drlReadProtocolJson(did, profileUri, "social");
 
       const res = await dwn.records.create({
         data: {
@@ -72,7 +74,7 @@ export const ProfileSettings = () => {
           published: true,
           recipient: did,
           dataFormat: "application/json",
-          protocol: profile.uri,
+          protocol: profileUri,
           protocolPath: "social",
         },
       });
@@ -118,7 +120,7 @@ export const ProfileSettings = () => {
         published: true,
         recipient: did,
         dataFormat: blob.type,
-        protocol: profile.uri,
+        protocol: profileUri,
         protocolPath: "avatar",
       },
     });
@@ -146,7 +148,7 @@ export const ProfileSettings = () => {
               />
             ) : hasProfileName && !avatarLoadError ? (
               <img
-                src={drlReadProtocolUrl(did, profile.uri, "avatar")}
+                src={drlReadProtocolUrl(did, profileUri, "avatar")}
                 alt="Avatar"
                 onError={(e) => setAvatarLoadError(e.type)}
                 className="rounded-full w-full h-full object-cover cursor-pointer"

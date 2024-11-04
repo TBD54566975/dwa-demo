@@ -5,8 +5,9 @@ import { useWeb5 } from "@/web5";
 import { useEffect, useState } from "react";
 import ConnectQR from "./connect-qr";
 import ConnectPin from "./connect-pin";
-import { profileDefinition, tasksProtocolDefinition } from "@/web5/protocols";
 import { toastError } from "@/lib/utils";
+import { profileDefinition } from "@/protocols/profile";
+import { taskDefinition } from "@/protocols/tasks";
 
 
 interface ConnectSelectorProps {
@@ -76,9 +77,11 @@ const ConnectSelector: React.FC<ConnectSelectorProps> = ({
       await walletConnect({
         connectServerUrl: "https://dwn.tbddev.org/beta/connect",
         walletUri: "web5://connect",
-        permissionRequests: [{ protocolDefinition: profileDefinition }, { protocolDefinition: tasksProtocolDefinition }],
+        permissionRequests: [{ protocolDefinition: profileDefinition }, { protocolDefinition: taskDefinition }],
         onWalletUriReady: (text: string) => {
-          setQrCode(text);
+          const url = new URL(text);
+          url.protocol = 'web+dwn';
+          setQrCode(url.toString());
           setState('showQR');
         },
         validatePin: async () => {

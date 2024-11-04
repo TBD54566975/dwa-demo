@@ -1,4 +1,6 @@
 /// <reference lib="webworker" />
+//@ts-expect-error - WorkBox disable dev logs
+self.__WB_DISABLE_DEV_LOGS = true;
 import { activatePolyfills } from "@web5/browser";
 
 import {
@@ -19,6 +21,7 @@ precacheAndRoute(self.__WB_MANIFEST);
 
 // clean old assets
 cleanupOutdatedCaches();
+
 
 /** @type {RegExp[] | undefined} */
 let allowlist;
